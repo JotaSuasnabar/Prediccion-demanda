@@ -18,6 +18,10 @@ GenerarG = GenerarGrafico()
 def index():
     return render_template('plantilla.html')
 
+''''''''''''''''''''''''''''''''''''
+'''''''Prediccion de Demanda'''''''
+''''''''''''''''''''''''''''''''''''
+
 @app.route('/ver_registro')
 def ver_registro():
     registros = ObtenerD.ver_registros()  # Llamada a la función ver_registros sin argumentos
@@ -47,7 +51,10 @@ def generar_prediccion():
 ''''''''''''''''''''''''''''''''''''
 '''''Segmentacion de Clientes'''''
 ''''''''''''''''''''''''''''''''''''
-
+@app.route('/ver_productos')
+def ver_datos_productos():
+    datosP = ObtenerD.mostrar_datos_productos()  # Llamada a la función ver_registros sin argumentos
+    return render_template('ver_productos.html', datosP=datosP)
 
 if __name__ == '__main__':
     app.run(debug=True)
