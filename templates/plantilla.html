@@ -1,4 +1,73 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="../static/css/style.css" >
+</head>
+
+<body>
+    <div class="container-fluid h-100">
+        <div class="row h-100">
+            <!-- Header Horizontal -->
+            <div class="col-md-12 bg-vino">
+                <img class="imagen--titulo" src="../static/img/logo.png" alt="">
+            </div>
+    
+            <!-- Barra de Navegación Vertical -->
+            <div class="col-md-2 bg-nav h-100">
+                <nav class="navbar navbar-expand-lg navbar-light flex-column">
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link text-light mt-5 tm-f" href="http://127.0.0.1:5000/">Predicción de Demanda</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-light mt-5 tm-f" href="#">Segmentación de clientes</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-light mt-5 tm-f" href="#">Recomendación de productos</a>
+                            </li>
+                            <!-- Añade más elementos según sea necesario -->
+                        </ul>
+                    </div>
+                </nav>
+            </div>            
+    
+            <!-- Contenido Principal -->
+            <div class="col-md-10">
+                <h2 class="text-light mt-5 ml-5">Demanda</h2>
+                
+                <form action="/ver_registro" method="get">
+                    <input type="submit" value="Ver registro">
+                </form>
+                <form action="/datos_entrenamiento" method="get">
+                    <input type="submit" value="Datos de Entrenamiento">
+                </form>
+                <form action="/generar_prediccion" method="get">
+                    <input type="submit" value="Generar Predicción">
+                </form>
+                <form action="/ver_productos" method="get">
+                    <input type="submit" value="Ver Productos">
+                </form> 
+                <form action="/generar_prediccion_productos" method="get">
+                    <input type="submit" value="Generar Predicción Productos">
+                </form>  
+
+            </div>
+        </div>
+    </div>    
+</body>
+</html>
+
+<!--
+<!DOCTYPE html>
 <html>
 <head>
     <title>Ver registro</title>
@@ -22,3 +91,4 @@
     </form>    
 </body>
 </html>
+-->
