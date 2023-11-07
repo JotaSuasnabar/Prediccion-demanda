@@ -24,10 +24,11 @@ class ObtenerDatos:
         return resultados
 
     @staticmethod
-    def obtener_datos_entrenamiento():
+    def obtener_datos_entrenamiento(fecha_inicio, fecha_fin):
         conexion = Conexion.conectar_bd('localhost', 'root', '', 'restaurante')
         cursor = conexion.cursor()
-        cursor.execute("SELECT fecha, SUM(p_total) FROM o_pedidos WHERE fecha BETWEEN '2023-05-01' AND '2023-10-01' GROUP BY fecha")
+        consulta = "SELECT fecha, SUM(p_total) FROM o_pedidos WHERE fecha BETWEEN %s AND %s GROUP BY fecha"
+        cursor.execute(consulta, (fecha_inicio, fecha_fin))
         resultados = cursor.fetchall()
         cursor.close()
         conexion.close()

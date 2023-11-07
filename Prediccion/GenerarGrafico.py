@@ -1,4 +1,5 @@
 from matplotlib import pyplot as plt
+import time
 
 class GenerarGrafico:
      
@@ -19,6 +20,15 @@ class GenerarGrafico:
         # Rotar las etiquetas del eje X para mayor legibilidad
         plt.xticks(rotation=45)
 
-        # Mostrar el gráfico
+        # Generar un nombre de archivo único con un timestamp
+        timestamp = int(time.time())
+        nombre_archivo = f'static/img/grafico_{timestamp}.png'
+
+        # Guardar el gráfico como una imagen
         plt.tight_layout()
-        plt.show()
+        plt.savefig(nombre_archivo)
+
+        # Cerrar la figura para liberar memoria
+        plt.close()
+
+        return nombre_archivo  # Devolver el nombre del archivo generado
