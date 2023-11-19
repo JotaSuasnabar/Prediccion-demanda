@@ -10,6 +10,7 @@ from flask import redirect
 from flask import Flask
 from flask_login import LoginManager
 from flask_login import LoginManager, login_user, logout_user, UserMixin, login_required
+from sklearn.linear_model import LinearRegression
 
 app = Flask(__name__)
 
@@ -64,11 +65,15 @@ def autenticar():
 @login_required
 def dashboard():
     # Obtener nombre de archivos de las predicciones
-    nombre_archivo = request.args.get('nombre_archivo')
-    nombre_archivo_1 = request.args.get('nombre_archivo_1')
-    nombre_archivo_2 = request.args.get('nombre_archivo_2')
+    nombres_archivos = request.args.getlist('nombres_archivos')
 
-    return render_template('plantilla.html',nombre_archivo=nombre_archivo, nombre_archivo_1=nombre_archivo_1, nombre_archivo_2=nombre_archivo_2)
+    # Dividir la lista de nombres de archivos en dos bloques
+    nombres_archivos_1 = nombres_archivos[:len(nombres_archivos)//2]
+    nombres_archivos_2 = nombres_archivos[len(nombres_archivos)//2:]
+
+    return render_template('plantilla.html', nombres_archivos_1=nombres_archivos_1, nombres_archivos_2=nombres_archivos_2)
+
+
 
 @app.route('/logout')
 @login_required
@@ -114,53 +119,55 @@ def registrar():
 def obtener_detalles():
     Tinicio = request.form['Tinicio']
     Tfin = request.form['Tfin']
+    TDatos = request.form['TDatos']
     Pinicio = request.form['Pinicio']
     Pfin = request.form['periodo']
-    return redirect(url_for('generar_prediccion', Tinicio=Tinicio, Tfin=Tfin, Pinicio=Pinicio, Pfin=Pfin))
-
-
-
-
+    return redirect(url_for('generar_prediccion', Tinicio=Tinicio, Tfin=Tfin, Pinicio=Pinicio, Pfin=Pfin, TDatos=TDatos))
 
 @app.route('/generar_prediccion')
 def generar_prediccion():
-    # Obtener fechas de la URL
-    Tinicio = request.args.get('Tinicio')
-    Tfin = request.args.get('Tfin')
-    fecha_inicio_prediccion = request.args.get('Pinicio')
-    fecha_fin_prediccion = int(request.args.get('Pfin'))
-    
-    # Convertir fecha_inicio_prediccion a datetime.date
-    fecha_inicio_prediccion = datetime.strptime(fecha_inicio_prediccion, "%Y-%m-%d").date()
-    # Calcular la diferencia en días
-    dias_a_predecir = fecha_fin_prediccion
-    
-    # Obtener datos de entrenamiento
-    fechas_entrenamiento, ventas_entrenamiento = ObtenerD.obtener_datos_entrenamiento(Tinicio, Tfin)
-    
-    # Entrenar modelo
-    modelo, poly = EntrenarD.entrenar_modelo(fechas_entrenamiento, ventas_entrenamiento)
-    
-    # Definir nombre_archivo fuera del bloque if-else
-    nombre_archivo = None
-    nombre_archivo_1 = None
-    nombre_archivo_2 = None
-
-    # Predecir ventas
-    if dias_a_predecir == 14:
-        # Generar gráfico para los primeros 7 días
-        fechas_prediccion_1, ventas_prediccion_1 = PrediccionD.predecir_ventas(modelo, poly, fecha_inicio_prediccion, 7)
-        nombre_archivo_1 = GenerarG.generar_grafico(fechas_prediccion_1, ventas_prediccion_1)
-
-        # Generar gráfico para los siguientes 7 días
-        fechas_prediccion_2, ventas_prediccion_2 = PrediccionD.predecir_ventas(modelo, poly, fecha_inicio_prediccion + timedelta(days=7), 7)
-        nombre_archivo_2 = GenerarG.generar_grafico(fechas_prediccion_2, ventas_prediccion_2)
-    else:
-        fechas_prediccion, ventas_prediccion = PrediccionD.predecir_ventas(modelo, poly, fecha_inicio_prediccion, dias_a_predecir)
-        nombre_archivo = GenerarG.generar_grafico(fechas_prediccion, ventas_prediccion)
+    try:
+        # Obtener fechas de la URL
+        Tinicio = request.args.get('Tinicio')
+        Tfin = request.args.get('Tfin')
+        TDatos = request.args.get('TDatos')
+        fecha_inicio_prediccion = request.args.get('Pinicio')
+        fecha_fin_prediccion = int(request.args.get('Pfin'))
         
+        # Convertir fecha_inicio_prediccion a datetime.date
+        fecha_inicio_prediccion = datetime.strptime(fecha_inicio_prediccion, "%Y-%m-%d").date()
 
-    return redirect(url_for('dashboard', nombre_archivo=nombre_archivo, nombre_archivo_1=nombre_archivo_1, nombre_archivo_2=nombre_archivo_2))
+        # Calcular la diferencia en días
+        dias_a_predecir = fecha_fin_prediccion
+
+        if TDatos == "todosD":  # Si TDatos está presente (seleccionado)
+            fechas_entrenamiento, ventas_entrenamiento = ObtenerD.obtener_datos_entrenamiento_completo()
+        else:
+            # Obtener datos de entrenamiento según las fechas especificadas
+            fechas_entrenamiento, ventas_entrenamiento = ObtenerD.obtener_datos_entrenamiento(Tinicio, Tfin)
+        
+        # Entrenar modelo de regresión lineal
+        modelo = LinearRegression()
+        modelo.fit(fechas_entrenamiento.reshape(-1, 1), ventas_entrenamiento)
+        
+        # Inicializar listas de nombres de archivo
+        nombres_archivos = []
+
+        # Generar gráficos cada 7 días hasta alcanzar la cantidad total de días a predecir
+        for i in range(0, dias_a_predecir, 7):
+            fecha_inicio_bloque = fecha_inicio_prediccion + timedelta(days=i)
+            fechas_prediccion, ventas_prediccion = PrediccionD.predecir_ventas(modelo, fecha_inicio_bloque, min(7, dias_a_predecir - i))
+            nombre_archivo = GenerarGrafico.generar_grafico(fechas_prediccion, ventas_prediccion, i)
+            nombres_archivos.append(nombre_archivo)
+            print(f"Fechas predicción para el bloque {i+1}: {fechas_prediccion}")
+            print(f"Ventas predicción para el bloque {i+1}: {ventas_prediccion}")
+
+        # Pasar correctamente los nombres de archivo a la URL
+        return redirect(url_for('dashboard', nombres_archivos=nombres_archivos))
+
+    except Exception as e:
+        print(f"Error en la generación de predicciones: {str(e)}")
+        return redirect(url_for('dashboard', nombres_archivos=[]))
 
 
 

@@ -36,6 +36,21 @@ class ObtenerDatos:
         fechas = np.array([np.datetime64(fecha) for fecha in fechas]).reshape(-1, 1)
         ventas = np.array(ventas)
         return fechas, ventas
+
+    @staticmethod
+    def obtener_datos_entrenamiento_completo():
+        conexion = Conexion.conectar_bd('localhost', 'root', '', 'restaurante')
+        cursor = conexion.cursor()
+        consulta = "SELECT fecha, SUM(p_total) FROM o_pedidos GROUP BY fecha"
+        cursor.execute(consulta)
+        resultados = cursor.fetchall()
+        cursor.close()
+        conexion.close()
+        fechas, ventas = zip(*resultados)
+        fechas = np.array([np.datetime64(fecha) for fecha in fechas]).reshape(-1, 1)
+        ventas = np.array(ventas)
+        return fechas, ventas
+
     
     ''''''''''''''''''''''''''''''''''''
     '''''''Segmentacion de Clientes'''''''

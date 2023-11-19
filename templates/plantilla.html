@@ -61,56 +61,30 @@
                     <button id="mostrarFormulario" class="btn btn-primary">Predecir</button>
                 </div>
                 
-
-                {% if nombre_archivo or nombre_archivo_1 or nombre_archivo_2 %}
-                    <div class="container mt-4">
-                        <div class="row justify-content-center">
-                            {% if nombre_archivo_1 %}
-                                <div class="col-md-6">
-                                    <div class="grafico card">
-                                        <div class="text-center mx-auto">
-                                            <h5 class="card-title">Primera Semana</h5>
-                                        </div>                                        
-                                        <img src="{{ nombre_archivo_1 }}" alt="Gráfico de Predicciones 1" class="card-img-top">
-                                    </div>
-                                </div>
-                            {% endif %}
-                            
-                            {% if nombre_archivo_2 %}
-                                <div class="col-md-6">
-                                    <div class="grafico card">
-                                        <div class="text-center mx-auto">
-                                            <h5 class="card-title">Segunda Semana</h5>
-                                        </div>    
-                                        <img src="{{ nombre_archivo_2 }}" alt="Gráfico de Predicciones 2" class="card-img-top">
-                                    </div>
-                                </div>
-                            {% endif %}
-
-                        </div>
-                    </div>
-                {% endif %}
-                 
                 <!-- Aquí se mostrará el formulario cuando se presione el botón -->
-                <div class="campo__formulario" id="formulario" style="display:none; background-color: white; z-index: 9999; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                <div class="campo__formulario" id="formulario" style="display:none; background-color: white; z-index: 9999; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); margin-top: 10rem;">
                     <form class="campo__formulario--form" action="/form-detalles" method="POST">
                         <h3>Tiempo de Aprendizaje:</h3>
                         <div class="d-flex mt-4">
                             <div class="form-group d-flex">
                                 <label class="w-100 mt-1" for="inicio">Fecha de Inicio:</label>
-                                <input type="date" class="form-control ml-2" id="inicio" name="Tinicio">
+                                <input type="date" class="form-control ml-2" id="Tinicio" name="Tinicio">
                             </div>
                             <div class="form-group d-flex ml-5">
                                 <label class="w-100 mt-1" for="fin">Fecha de Fin:</label>
-                                <input type="date" class="form-control ml-2" id="fin" name="Tfin">
+                                <input type="date" class="form-control ml-2" id="Tfin" name="Tfin">
                             </div>
+                        </div>
+                        <div class="form-group d-flex ml-5">
+                            <label class="form-check-label" for="Datos">Todos los Datos</label>
+                            <input class="form-check-input" type="radio" name="TDatos" id="TDatos" value="todosD" onclick="toggleCampos()">
                         </div>
 
                         <h3 class="mt-5">Periodo de Predicción:</h3>
                         <div class="d-flex mt-4">
                             <div class="form-group d-flex">
                                 <label class="w-100 mt-1" for="inicio">Fecha de Inicio:</label>
-                                <input type="date" class="form-control ml-2" id="inicio" name="Pinicio">
+                                <input type="date" class="form-control ml-2" id="Pinicio" name="Pinicio">
                             </div>
                             
                             <div class="form-group d-flex ml-5">
@@ -120,7 +94,6 @@
                                     <option value="14">2 Semanas</option>   
                                     <option value="21">3 Semanas</option>
                                     <option value="28">1 Mes</option>
-                                    <option value="56">2 Meses</option>
                                 </select>
                             </div>
                             
@@ -132,8 +105,38 @@
                         
                     </form>
                     
-                    <!-- Aquí agrega los campos del formulario que necesites -->
+                </div> <!--Fin Formulario-->
+
+                <div class="row">
+                    {% for nombre_archivo_1 in nombres_archivos_1 %}
+                        <div class="col-md-6 mt-5">
+                            <div class="grafico card">
+                                <img src="{{ nombre_archivo_1 }}" alt="Gráfico de Predicciones 1" class="card-img-top">
+                            </div>
+                        </div>
+                
+                        {% if loop.index % 2 == 0 %}
+                            </div> <!-- Cerrar la fila actual después de cada segunda imagen -->
+                            <div class="row">
+                        {% endif %}
+                    {% endfor %}
+                
+                    {% for nombre_archivo_2 in nombres_archivos_2 %}
+                        <div class="col-md-6 mt-5">
+                            <div class="grafico card">
+                                <img src="{{ nombre_archivo_2 }}" alt="Gráfico de Predicciones 2" class="card-img-top">
+                            </div>
+                        </div>
+                
+                        {% if loop.index % 2 == 0 %}
+                            </div> <!-- Cerrar la fila actual después de cada segunda imagen -->
+                            <div class="row">
+                        {% endif %}
+                    {% endfor %}
                 </div>
+                
+
+
             </div>
         </div>
     </div>
@@ -155,6 +158,15 @@
                 }
             });
         });
+
+        function toggleCampos() {
+            var checkboxTodosDatos = document.getElementById('TDatos');
+            var campoTinicio = document.getElementById('Tinicio');
+            var campoTfin = document.getElementById('Tfin');
+
+            campoTinicio.readOnly = checkboxTodosDatos.checked;
+            campoTfin.readOnly = checkboxTodosDatos.checked;
+        }
     </script>
     
 </body>
